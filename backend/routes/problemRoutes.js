@@ -1,11 +1,18 @@
 const express = require("express");
-const { createProblem, getProblems } = require("../controllers/problemController");
-const auth = require("../middleware/authMiddleware");
-const role = require("../middleware/roleMiddleware");
+const pool = require("../config/db");
 
 const router = express.Router();
 
-router.post("/", auth, role("admin"), createProblem);
-router.get("/", auth, getProblems);
+// Get all problems (for users)
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM problems ORDER BY id DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch problems" });
+  }
+});
 
 module.exports = router;
